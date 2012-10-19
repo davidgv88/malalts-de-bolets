@@ -2,11 +2,11 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "com.laende.malalts-de-bolets"
-        version   = "0.0.1">
-    <name>Malalts de Bolets</name>
+        version   = "0.0.2">
+    <name>Bolets</name>
 
     <description>
-        Malalts de Bolets. Laende
+        Malalts de Bolets.
     </description>
 
     <author href="http://laende.com" email="david@laende.com">
