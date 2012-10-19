@@ -2,7 +2,7 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "com.laende.malalts-de-bolets"
-        version   = "1.0.3">
+        version   = "0.0.1">
     <name>Malalts de Bolets</name>
 
     <description>
@@ -14,7 +14,10 @@
     </author>
 
     <feature name="http://api.phonegap.com/1.0/device" />
-
+    <feature name="http://api.phonegap.com/1.0/battery" />
+    <feature name="http://api.phonegap.com/1.0/file" />
+    <feature name="http://api.phonegap.com/1.0/network" />
+    
     <preference name="phonegap-version" value="2.1.0" />
     <preference name="target-device"    value="universal" />
     <preference name="fullscreen"       value="true" />
