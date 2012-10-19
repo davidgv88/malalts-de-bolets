@@ -1,0 +1,92 @@
+
+@font-face {
+  font-family: 'Medula One';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Medula One'), local('MedulaOne-Regular'), url('fonts/medula.woff') format('woff');
+}
+@font-face {
+  font-family: 'Sail';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Sail'), local('Sail-Regular'), url('fonts/sail.woff') format('woff');
+}
+@font-face {
+  font-family: 'Lobster';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Lobster'), url('fonts/lobster.woff') format('woff');
+}
+
+.sail{
+    font-family:'Sail';
+}
+
+.medula{
+    font-family:'Medula One';
+}
+
+.lobster{
+    font-family:'Lobster';
+}
+
+.ui-body-c{
+    background-image:url('img/background.jpg');
+}
+
+#bolet-name{
+    /*text-align:center;
+    color:#ffffff;
+    font-size:35px;
+    text-shadow: -1px 0 rgba(0,0,0,0.8), 0 1px rgba(0,0,0,0.8),
+                  1px 0 rgba(0,0,0,0.8), 0 -1px rgba(0,0,0,0.8);
+    background-image:url('img/red_name.png');
+    background-repeat:no-repeat;
+    width:100%*/
+    color: #586A7A;
+}
+
+.bolet-info h2{
+    color:#545456;
+    letter-spacing:3px;
+    font-weight:lighter;
+    font-size: 18px;
+}
+
+.bolet-info span{
+    color:#586A7A;
+    font-size: 16px;
+}
+
+.bolet-info img{
+    width:35px;
+}
+
+/*
+.ui-bar-a {
+	border: 1px solid 		#989898 ;
+	background: 			#57616d ;
+	color: 					#fffeee ;
+	text-shadow: 1px  1px #000000;
+	background-image: -webkit-gradient(linear, left top, left bottom, from( #57616d), to( #628697));
+	background-image: -webkit-linear-gradient( #57616d , #628697 );
+	background-image:    -moz-linear-gradient( #57616d , #628697 ); 
+	background-image:     -ms-linear-gradient( #57616d , #628697 ); 
+	background-image:      -o-linear-gradient( #57616d , #628697 ); 
+	background-image:         linear-gradient( #57616d , #628697 );
+}
+
+.ui-body-c .ui-link{
+	color:#736357;
+}
+
+.ui-body-c{
+    background-image:url('img/background.jpg');
+}
+
+.ui-header .ui-title, .ui-footer .ui-title { 
+	font-weight: normal;
+	letter-spacing: 3px;
+	font-size: 20px;
+	
+}*/

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
+        <meta charset="utf-8">
+            
+            <link rel="stylesheet" href="css/jquery.mobile-1.1.1.css" />
+            <link rel="stylesheet" href="css/malaltsdebolets_theme/malaltsdebolets.css" />
+            <link rel="stylesheet" href="css/override.css" />
+
+            <script src="js/jquery-1.7.2.min.js"></script>
+            <script src="js/scripting.js"></script>
+            
+
+            <script src="js/jquery.mobile-1.1.1.min.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/cordova-2.0.0.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/functions.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/jquery.url.js"></script>
+            <script type="text/javascript">                
+                function onBodyLoad()
+                {		
+                    document.addEventListener("deviceready", onDeviceReady, false);
+                    
+                    $(document).bind('swipeleft swiperight',function(event, ui){
+                                   
+                        
+                                     if(event.type == "swipeleft"){
+                                        if ($("#next_id").length > 0) {
+                                            window.location=$("#next_id").attr("href");
+                                        }
+                                     }
+                                     
+                                     if(event.type == "swiperight"){
+                                        if ($("#prev_id").length > 0) {
+                                            window.location=$("#prev_id").attr("href");
+                                        }
+                                     }
+                    });
+
+                }
+                
+                function onDeviceReady()
+                {
+                    
+                    //var url = $.url().param('id'); // parse the current page URL
+                    
+                    //console.log("la id es "+url);
+                    
+                    var db = getDbResource();
+                    db.transaction(queryDB,errorCB);
+                    
+                }
+                
+                function queryDB(tx){
+                    var id = $.url().param('id'); // parse the current page URL
+                    
+                    var custom_search_string = window.localStorage.getItem("custom_search_string");
+
+                    var sql_where = "";
+                    
+                    if(custom_search_string !== null){
+                        //alert(custom_search_string);
+                        sql_where = custom_search_string;
+                    }
+                    
+                    var extend_sql = '(SELECT bi2.id FROM bolets_info bi2 WHERE bi2.nom < bi.nom '+sql_where+' ORDER BY bi2.nom DESC LIMIT 1) as prev_id, \
+                    (SELECT bi3.id FROM bolets_info bi3 WHERE bi3.nom > bi.nom '+sql_where+' ORDER BY bi3.nom ASC LIMIT 1) as next_id';
+                    
+                    
+                    var sql = 'SELECT \
+                                    bi.id, \
+                                    bi.nom, \
+                                    bi.nom as nom_bolet, \
+                                    bi.nom_cientific, \
+                                    bi.nom_comuns, \
+                                    bi.temporada, \
+                                    bi.habitat, \
+                                    bi.descripcio, \
+                                    bi.comestibilitat, \
+                                    bi.nivell nivell, \
+                                    n.nom nivell_nom, \
+                                    c.nom comestibilitat_nom, \
+                                    '+extend_sql+'\
+                            FROM bolets_info bi \
+                            LEFT JOIN  nivell n ON bi.nivell = n.id \
+                            LEFT JOIN  comestibilitat c ON bi.comestibilitat = c.id \
+                            WHERE bi.id = :id \
+                            ORDER BY bi.nom ASC \
+                            LIMIT 1';
+
+                    tx.executeSql(sql, [id], querySuccess, errorCB);
+                }
+                function temporada_success(tx, results) {
+                    var len = results.rows.length;
+                    for (var i=0; i<len; i++){
+                        var id = results.rows.item(i).id;
+                        var nom = results.rows.item(i).nom;
+
+                        $("#temporada").append('<p><img src="img/temporada/'+id+'/'+id+'.png" /><br> '+nom+'</p>');
+                    }
+
+                }
+                
+                function habitat_success(tx, results) {
+
+                    var len = results.rows.length;
+                    console.log(len);
+                    for (var i=0; i<len; i++){
+                        var id = results.rows.item(i).id;
+                        var nom = results.rows.item(i).nom;
+                        
+                        $("#habitat").append(nom);
+                    }
+                }
+                
+                function querySuccess(tx, results) {
+                    var len = results.rows.length;
+                    //console.log("DEMO table: " + len + " rows found.");
+                    for (var i=0; i<len; i++){
+                        
+                        var id = results.rows.item(i).id;
+                        var nom = results.rows.item(i).nom;
+                        var nom_cientific = results.rows.item(i).nom_cientific;
+                        var nom_comuns = results.rows.item(i).nom_comuns;
+                        var temporada = results.rows.item(i).temporada;
+//                        var temporada_nom = results.rows.item(i).temporada_nom;
+                        var habitat = results.rows.item(i).habitat;
+                        var descripcio = results.rows.item(i).descripcio;
+                        var nivell = results.rows.item(i).nivell;
+                        var nivell_nom = results.rows.item(i).nivell_nom;
+                        var comestibilitat = results.rows.item(i).comestibilitat;
+                        var comestibilitat_nom = results.rows.item(i).comestibilitat_nom;
+                        
+                        var prev_id = results.rows.item(i).prev_id;
+                        var next_id = results.rows.item(i).next_id;
+                        
+                        //alert(results.rows.item(i).prev_id+" <--> "+results.rows.item(i).next_id);
+                        
+                        if(prev_id === null){
+                            $("#prev_id").remove();
+                        }else{
+                            $("#prev_id").attr("href","view.html?id="+prev_id);
+                            $("#prev_id").data("prev",prev_id);
+                        }
+                        
+                        if(next_id === null){
+                            $("#next_id").remove();
+                        }else{
+                            $("#next_id").attr("href","view.html?id="+next_id);
+                            $("#next_id").data("next",next_id);
+                        }
+
+                        
+                        $(".nom").html(nom);
+                        $("#nom_cientific").html(nom_cientific);
+                        $("#nom_comuns").html(nom_comuns);
+                                                
+                        $("#descripcio").html(descripcio);
+                        
+                        $("#nivell").html('<img src="img/nivell/'+nivell+'/'+nivell+'.png" /><br> '+nivell_nom);
+                        
+                        $("#comestibilitat").html('<img src="img/comestibilitat/'+comestibilitat+'/'+comestibilitat+'.png" /><br> '+comestibilitat_nom);
+                        
+                        
+                        $("#image_bolet").html('<img id="image" style="width:100%" src="img/bolets/'+id+'/'+id+'_400x409.jpg" />');
+                        
+                        tx.executeSql('SELECT * FROM temporada t WHERE t.id IN('+temporada+')', [], temporada_success, errorCB);
+                        
+                        tx.executeSql('SELECT * FROM habitat h WHERE h.id IN('+habitat+')', [], habitat_success, errorCB);
+                        
+                    }
+                }
+
+            </script>
+
+            </head>
+    <body onload="onBodyLoad()">
+        <div data-role="page">
+            
+            <div data-role="header">
+                <a data-icon="back" href="list.html?storage=1">Catàleg</a>
+                <h1 class="nom"></h1>
+            </div><!-- /header -->
+            
+            <div data-role="content">
+                <div class="ui-grid-a">
+                    <div class="ui-block-a">
+                        <a id="prev_id" href="#" data-role="button" data-icon="arrow-l">Anterior</a>
+                    </div>
+                    <div class="ui-block-b">
+                        <a id="next_id" href="#" data-role="button" data-icon="arrow-r" data-iconpos="right">Seg&uuml;ent</a>
+                    </div>
+                </div>
+               
+                         <h1 id="bolet-name" class="nom sail"></h1>
+
+                            <div id="image_bolet"></div>
+                
+                            <div class="bolet-info">
+
+                                <h2 class="medula">Nom Científic:</h2>
+                                <span class="lobster" id="nom_cientific"></span>
+                
+                                <h2 class="medula">Nom Comuns: </h2>
+                                <span class="lobster" id="nom_comuns"></span>
+
+                                <h2 class="medula">Comestibilitat: </h2>
+                                <span class="lobster" id="comestibilitat"></span>
+                
+                                <h2 class="medula">Temporada: </h2>
+                                <span class="lobster" id="temporada"></span>
+                
+                                <h2 class="medula">Hàbitat: </h2>
+                                <span class="lobster" id="habitat"></span>
+
+                                <h2 class="medula">Nivell d'experiència: </h2>
+                                <span class="lobster" id="nivell"></span>
+                
+                                <h2 class="medula">Descripció: </h2>
+                                <span class="lobster" id="descripcio"></span>
+                                
+                            </div>
+                                    
+            </div><!-- /content -->
+            
+            <div data-role="footer">
+                <h3>&copy; 2012 Laende.com</h3>
+            </div>
+            
+        </div><!-- /page -->
+    </body>
+</html>

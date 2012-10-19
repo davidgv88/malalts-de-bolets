@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
+        <meta charset="utf-8">
+            
+            <link rel="stylesheet" href="css/jquery.mobile-1.1.1.css" />
+            <link rel="stylesheet" href="css/malaltsdebolets_theme/malaltsdebolets.css" />
+            <link rel="stylesheet" href="css/override.css" />
+
+            <script src="js/jquery-1.7.2.min.js"></script>
+            <script src="js/scripting.js"></script>
+            
+
+            <script src="js/jquery.mobile-1.1.1.min.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/cordova-2.0.0.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/functions.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/jquery.url.js"></script>
+            <script type="text/javascript">
+                
+                function onBodyLoad()
+                {		
+                    document.addEventListener("deviceready", onDeviceReady, false);
+                    
+                    $.mobile.showPageLoadingMsg();
+                }
+                
+                function onDeviceReady()
+                {
+                    
+                    // do your thing!
+                    //navigator.notification.alert("Cordova is working");
+                    
+                    var url = $.url(); // parse the current page URL
+                    
+                    //alert(url.param('name'));
+                    
+                    var db = getDbResource();
+                    
+                    //QUAN tornes enrere desde un bolet.
+                    if(typeof url.param('storage') != 'undefined'){
+                        var custom_sql = window.localStorage.getItem("custom_sql");
+
+                        if(custom_sql === null){
+                            db.transaction(queryDB,errorCB);
+                        }else{
+                            db.transaction(storage_queryDB,errorCB);
+                        }
+                        
+                    //QUAN es ve desde el cercador.
+                    }else if(typeof url.param('search-form') != 'undefined'){
+                        db.transaction(search_queryDB,errorCB);
+                        $("#back_button").attr("href","search.html");
+                    }else{
+                        db.transaction(queryDB,errorCB);
+                    }
+                    
+                }
+                
+                function queryDB(tx){
+                    window.localStorage.removeItem("custom_sql");
+                    window.localStorage.removeItem("custom_search_string");
+                    tx.executeSql('SELECT * FROM bolets_info ORDER BY nom ASC', [], querySuccess, errorCB);
+                }
+                
+                function search_queryDB(tx){
+                    var url = $.url();
+                    
+                    var search_string = "";
+                    
+                    //alert(url.param('select-temporada'));
+                    if(url.param('select-temporada') != '0'){
+                        search_string += ' AND temporada = "'+url.param('select-temporada')+'"';
+                    }
+                    
+                    //alert(url.param('select-habitat'));
+                    if(url.param('select-habitat') != '0'){
+                        search_string += ' AND habitat = "'+url.param('select-habitat')+'"';
+                    }
+                    
+                    var search = url.param('search')
+                    search = urldecode(search);
+                    search = $.trim(search);
+                    
+                    if(search != ""){
+                        //search_string += ' AND nom LIKE "%'+search+'%"';
+                        search_string += ' AND (nom LIKE "%'+search+'%" OR nom_comuns LIKE "%'+search+'%" OR nom_cientific LIKE "%'+search+'%")';
+                    }
+                    
+                    var sql = 'SELECT * FROM bolets_info WHERE 1=1 '+search_string+' ORDER BY nom ASC';
+                    window.localStorage.setItem("custom_sql", sql);
+                    window.localStorage.setItem("custom_search_string", search_string);
+                    tx.executeSql(sql, [], querySuccess, errorCB);
+                }
+                
+                function storage_queryDB(tx){
+                    var sql = window.localStorage.getItem("custom_sql");
+                    tx.executeSql(sql, [], querySuccess, errorCB);
+                }
+                
+                function querySuccess(tx, results) {
+                    var len = results.rows.length;
+                    //console.log("DEMO table: " + len + " rows found.");
+                    
+                    if(len > 0){
+                        
+                        for (var i=0; i<len; i++){
+                            //console.log(results.rows.item(i));
+                            var id = results.rows.item(i).id;
+                            var nom = results.rows.item(i).nom;
+                            var nom_cientific = results.rows.item(i).nom_cientific;
+                            $("#list-bolets").append('<li><a href="view.html?id='+id+'"><img src="img/bolets/'+id+'/'+id+'_80x80.jpg" /><h3>'+nom+'</h3><p><strong>'+nom_cientific+'</strong></p><p class="ui-li-aside"><strong>+ info</strong></p></a></li>');
+                            //$("#listTemplate" ).tmpl(results.rows.item(i)).appendTo("#list-bolets" );
+                            //console.log("Row = " + i + " ID = " + results.rows.item(i).nom + " Data =  " + results.rows.item(i).nom_comuns);
+                        }
+                        
+                        $("#list-bolets").listview('refresh');
+                        
+                    }else{
+                        navigator.notification.alert(
+                                                       'No s\'han trobat resultats',  // message
+                                                       onConfirm,              // callback to invoke with index of button pressed
+                                                       'Resultats',            // title
+                                                       'Tornar'          // buttonLabels
+                                                       );
+
+                    }
+                    
+                    $.mobile.hidePageLoadingMsg();
+                    
+                }
+                
+                function onConfirm() {
+                    window.location="search.html";
+                }
+
+
+            </script>
+
+            </head>
+    <body onload="onBodyLoad()">
+        <div data-role="page">
+            
+            <div data-role="header">
+                <a id="back_button" data-icon="back" href="index.html">Enrere</a>
+                <h1>Catàleg</h1>
+            </div><!-- /header -->
+            
+            <div data-role="content">	
+                
+                <ul id="list-bolets" data-role="listview" data-theme="d" data-divider-theme="d">
+                    
+                </ul>
+                
+                
+            </div><!-- /content -->
+            
+            <div data-role="footer">
+                <h3>&copy; 2012 Laende.com</h3>
+            </div>
+            
+        </div><!-- /page -->
+    </body>
+</html>

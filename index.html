@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
+        <meta charset="utf-8">
+
+
+
+            <link rel="stylesheet" href="css/jquery.mobile-1.1.1.css" />
+            <link rel="stylesheet" href="css/malaltsdebolets_theme/malaltsdebolets.css" />
+            <link rel="stylesheet" href="css/override.css" />
+            
+            <script src="js/jquery-1.7.2.min.js"></script>
+            <script src="js/scripting.js"></script>
+            <script src="js/jquery.mobile-1.1.1.min.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/cordova-2.0.0.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/functions.js"></script>
+            
+            <script type="text/javascript">                
+                
+                function onBodyLoad()
+                {		
+                    document.addEventListener("deviceready", onDeviceReady, false);
+                }
+                
+                function onDeviceReady()
+                {
+                    // do your thing!
+                    //navigator.notification.alert("Cordova is working");
+                
+                    var db = getDbResource();                    
+                    
+                    db.transaction(queryDB,errorCB);
+                    
+                }
+                
+                function queryDB(tx) {
+                    
+                    tx.executeSql('SELECT version FROM conf', [], querySuccess, create_tables);
+                                        
+                }
+                
+                function querySuccess(tx, results) {
+                    
+                    console.log("Registros encontrados = " + results.rows.length);
+                    
+                    
+                    //si la version esta vacio o no corresponde la version.....
+                    if(results.rows.length == 0 || results.rows.item(0).version != VERSION){
+                        
+                        create_tables_sql(tx);
+                        
+                        /* OMPLINT BOLETS... */
+                         var jsondata = {};
+                         
+                         $.ajax({
+                                url: "txt/bolets.json",
+                                async: false,
+                                dataType: 'json',
+                                success: function(data) {
+                                    jsondata = data;
+                                jQuery.each(jsondata, function(i, val) {
+                                            tx.executeSql('INSERT INTO bolets_info (id, nom,nom_comuns,nom_cientific,descripcio,temporada,habitat,comestibilitat,nivell) VALUES ("'+val.id+'","'+val.nom+'","'+val.nom_comuns+'","'+val.nom_cientific+'","'+val.descripcio+'","'+val.temporada+'","'+val.habitat+'","'+val.comestibilitat+'","'+val.nivell+'")');
+                                            console.log('insertando bolet '+i);
+                                            });
+                                }
+                         });
+                        
+                        /* OMPLINT COMESTIBILITATS... */
+                        var jsondata = {};
+                        
+                        $.ajax({
+                               url: "txt/comestibilitat.json",
+                               async: false,
+                               dataType: 'json',
+                               success: function(data) {
+                               jsondata = data;
+                               jQuery.each(jsondata, function(i, val) {
+                                           tx.executeSql('INSERT INTO comestibilitat(id, nom) VALUES ("'+val.id+'","'+val.nom+'")');
+                                           console.log('insertando comest. '+i);
+                                });
+                               }
+                               });
+                        
+                        /* OMPLINT habilitats... */
+                        var jsondata = {};
+                        
+                        $.ajax({
+                               url: "txt/habilitats.json",
+                               async: false,
+                               dataType: 'json',
+                               success: function(data) {
+                               jsondata = data;
+                               jQuery.each(jsondata, function(i, val) {
+                                           tx.executeSql('INSERT INTO habilitats(id, nom) VALUES ("'+val.id+'","'+val.nom+'")');
+                                           console.log('insertando habilitats. '+i);
+                                           });
+                               }
+                               });
+                        
+                        /* OMPLINT habitats... */
+                        var jsondata = {};
+                        
+                        $.ajax({
+                               url: "txt/habitat.json",
+                               async: false,
+                               dataType: 'json',
+                               success: function(data) {
+                               jsondata = data;
+                               jQuery.each(jsondata, function(i, val) {
+                                           tx.executeSql('INSERT INTO habitat(id, nom) VALUES ("'+val.id+'","'+val.nom+'")');
+                                           console.log('insertando habitat. '+i);
+                                           });
+                               }
+                               });
+                        
+                        /* OMPLINT temporada... */
+                        var jsondata = {};
+                        
+                        $.ajax({
+                               url: "txt/temporada.json",
+                               async: false,
+                               dataType: 'json',
+                               success: function(data) {
+                               jsondata = data;
+                               jQuery.each(jsondata, function(i, val) {
+                                           tx.executeSql('INSERT INTO temporada(id, nom) VALUES ("'+val.id+'","'+val.nom+'")');
+                                           console.log('insertando temporada. '+i);
+                                           });
+                               }
+                               });
+                        
+                        /* OMPLINT nivells... */
+                        var jsondata = {};
+                        
+                        $.ajax({
+                               url: "txt/nivell.json",
+                               async: false,
+                               dataType: 'json',
+                               success: function(data) {
+                               jsondata = data;
+                               jQuery.each(jsondata, function(i, val) {
+                                           tx.executeSql('INSERT INTO nivell(id, nom) VALUES ("'+val.id+'","'+val.nom+'")');
+                                           console.log('insertando nivell. '+i);
+                                           });
+                               }
+                               });
+                         
+                        tx.executeSql('DELETE FROM conf');
+                        tx.executeSql('INSERT INTO conf (version) VALUES ('+VERSION+')');
+                         
+                         
+                         //console.log('todo ok');
+                         //tx.executeSql('SELECT * FROM bolets_info', [], querySuccess, errorCB);
+                        
+                    }
+                    
+                    //console.log(results.rows.item(0).version);
+                    
+
+                }
+                
+                
+                function create_tables(tx,err){
+                    
+                    create_tables_sql(tx);
+                    
+                    
+                    tx.executeSql('SELECT version FROM conf', [], querySuccess, create_tables);  
+                    
+                    /*
+                    console.log('todo ok');
+                    tx.executeSql('SELECT * FROM bolets_info', [], querySuccess, errorCB);*/
+                }
+                
+                </script>
+            </head>
+    <body onload="onBodyLoad()">
+        <div data-role="page">
+            
+            <div data-role="header">
+                <h1>Caçadors de bolets</h1>
+            </div><!-- /header -->
+            
+            <div data-role="content">
+		<img style="width:100%" src="img/home-up.png" />
+                
+                 <a href="search.html" data-role="button">Cercador</a> 
+                
+                <br />
+                
+                 <a href="list.html" data-role="button">Catàleg</a> 
+
+                
+            </div><!-- /content -->
+            
+            <div data-role="footer">
+                <h3>&copy; 2012 Laende.com</h3>
+            </div>
+            
+        </div><!-- /page -->
+    </body>
+</html>

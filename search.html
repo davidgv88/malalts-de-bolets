@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
+        <meta charset="utf-8">
+            
+            <link rel="stylesheet" href="css/jquery.mobile-1.1.1.css" />
+            <link rel="stylesheet" href="css/malaltsdebolets_theme/malaltsdebolets.css" />
+            <link rel="stylesheet" href="css/override.css" />
+            
+            <script src="js/jquery-1.7.2.min.js"></script>
+            <script src="js/scripting.js"></script>
+            <script src="js/jquery.mobile-1.1.1.min.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/cordova-2.0.0.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/functions.js"></script>
+            
+            <script type="text/javascript">                
+                
+                function onBodyLoad()
+                {		
+                    document.addEventListener("deviceready", onDeviceReady, false);
+                }
+                
+                function onDeviceReady()
+                {
+                
+                    var db = getDbResource();                    
+                    
+                    db.transaction(queryDB,errorCB);
+                    
+                }
+                
+                function queryDB(tx) {
+
+                    tx.executeSql('SELECT * FROM temporada', [], temporada_querySuccess, errorCB);
+                    
+                    tx.executeSql('SELECT * FROM habitat', [], habitat_querySuccess, errorCB);
+                    
+                }
+                
+                
+                function temporada_querySuccess(tx, results) {
+                    var len = results.rows.length;
+                    for (var i=0; i<len; i++){
+                        var id = results.rows.item(i).id;
+                        var nom = results.rows.item(i).nom;
+                        $("#select-temporada").append('<option value="'+id+'">'+nom+'</option>');
+                    }
+                }
+                
+                function habitat_querySuccess(tx, results) {
+                    var len = results.rows.length;
+                    for (var i=0; i<len; i++){
+                        var id = results.rows.item(i).id;
+                        var nom = results.rows.item(i).nom;
+                        $("#select-habitat").append('<option value="'+id+'">'+nom+'</option>');
+                    }
+                }
+                
+                
+                </script>
+            </head>
+    <body onload="onBodyLoad()">
+        <div data-role="page">
+            
+            <div data-role="header">
+                <a data-icon="back" href="index.html">Enrere</a>
+                <h1>Cercador</h1>
+            </div><!-- /header -->
+            
+            <div data-role="content">
+                
+                <form action="list.html" method="get">
+                    <input type="hidden" name="search-form" value="1" />
+                    
+                    <h2>Cercador...</h2>
+                                        
+                    <div data-role="fieldcontain">
+                        <label for="select-temporada" class="select">Temporada:</label>
+                        <select name="select-temporada" id="select-temporada">
+                            <option value="0">Selecciona...</option>
+                        </select>
+                    </div>
+                    
+                    <div data-role="fieldcontain">
+                        <label for="select-habitat" class="select">Habitat:</label>
+                        <select name="select-habitat" id="select-habitat">
+                            <option value="0">Selecciona...</option>
+                        </select>
+                    </div>
+                                        
+                    <div data-role="fieldcontain">
+                        <label for="search">Nom:</label>
+                        <input type="search" name="search" id="search" value="" placeholder="Exemple: Apagallums"  />
+                    </div>
+                    
+                    <!--<div data-role="fieldcontain">
+                        <label for="search">Nom Cientific:</label>
+                        <input type="search" name="password" id="search" value=""  />
+                    </div>-->
+                    
+                    <div class="ui-body ui-body-b">
+                        <fieldset class="ui-grid-a">
+                            <div class="ui-block-a">
+                                 <a href="index.html" data-role="button" data-theme="d">Cancel·lar</a>
+                            </div>
+                            <div class="ui-block-b">
+                                <button type="submit" data-theme="a">Cercar</button>
+                            </div>
+                        </fieldset>
+                    </div>
+                </form>
+            </div><!-- /content -->
+            
+            <div data-role="footer">
+                <h3>&copy; 2012 Laende.com</h3>
+            </div>
+            
+        </div><!-- /page -->
+    </body>
+</html>
