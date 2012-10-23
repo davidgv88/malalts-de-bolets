@@ -32,5 +32,5 @@ function urldecode (str) {
     return decodeURIComponent((str + '').replace(/\+/g, '%20'));
 }
 
-var VERSION = "0.3";
+var VERSION = "0.4";
 
