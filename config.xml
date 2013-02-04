@@ -2,7 +2,7 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "com.laende.malalts-de-bolets"
-        version   = "0.0.8">
+        version   = "0.0.9">
     <name>Malalts de Bolets</name>
 
     <description>
@@ -18,10 +18,9 @@
     <feature name="http://api.phonegap.com/1.0/file" />
     <feature name="http://api.phonegap.com/1.0/network" />
     
-    <preference name="phonegap-version" value="2.1.0" />
+    <preference name="phonegap-version" value="2.2.0" />
     <preference name="target-device"    value="universal" />
     <preference name="fullscreen"       value="true" />
-    <preference name="android-maxSdkVersion" value="10" />
 
     <icon src="icon.png" />
     <icon src="res/icon/android/icon-36-ldpi.png"   gap:platform="android"    gap:density="ldpi" />
